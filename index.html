@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>관리해주는 챗트레이너</title>
+    <style>
+      body {
+        background-color: #f1f1f1;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100vh;
+      }
+
+      .chatbox {
+        flex-grow: 1;
+        padding: 10px;
+        overflow-y: scroll;
+      }
+
+      .input-box {
+        display: flex;
+        justify-content: center;
+        background-color: white;
+        padding: 20px;
+      }
+
+      .input-box input[type='text'] {
+        width: 80%;
+        padding: 10px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 3px;
+      }
+
+      .input-box button[type='submit'] {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      .chat-bubble {
+        display: inline-block;
+        max-width: 80%;
+        margin-bottom: 10px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .user-bubble {
+        background-color: #4caf50;
+        color: white;
+        margin-left: 20%;
+        text-align: right;
+      }
+
+      .bot-bubble {
+        background-color: #2196f3;
+        color: white;
+        margin-right: 20%;
+        text-align: left;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="chatbox" id="chatbox">
+        <div class="chat-bubble bot-bubble">
+          안녕하세요! 무엇을 도와드릴까요?
+        </div>
+      </div>
+      <div class="input-box">
+        <input type="text" id="user-input" placeholder="메시지 입력" />
+        <button type="submit" onclick="sendMessage()">전송</button>
+      </div>
+    </div>
+    <script>
+      async function sendMessage() {
+        // Get user input element and its value
+        const userInput = document.getElementById('user-input');
+        const userMessage = userInput.value;
+
+        // Clear the input element
+        userInput.value = '';
+
+        // Get the chatbox element and create a new user bubble element with the user message
+        const chatbox = document.getElementById('chatbox');
+        const userBubble = document.createElement('div');
+        userBubble.innerText = userMessage;
+        userBubble.classList.add('chat-bubble', 'user-bubble');
+
+        // Append the user bubble element to the chatbox element
+        chatbox.appendChild(userBubble);
+
+        // Send a POST request to the server with the user message
+        const response = await fetch('http://localhost:3003/tell', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: userMessage,
+          }),
+        });
+
+        // Parse the JSON response from the server and create a new bot bubble element with the bot message
+        const botMessage = await response.json();
+        const botBubble = document.createElement('div');
+        botBubble.innerText = botMessage;
+        botBubble.classList.add('chat-bubble', 'bot-bubble');
+
+        // Append the bot bubble element to the chatbox element
+        chatbox.appendChild(botBubble);
+      }
+    </script>
+  </body>
+</html>
